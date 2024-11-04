@@ -65,7 +65,7 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public Date getDateOfBirth() {
+    public java.sql.Date getDateOfBirth() {
         return dateOfBirth;
     }
 

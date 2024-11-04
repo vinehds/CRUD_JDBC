@@ -10,8 +10,9 @@ public class Program {
         User user = new User("vini", "123", "v@gmail.com", "5555", new Date());
 
         UserDao userDao = new UserDao();
-        userDao.insert(user);
+        int ra = userDao.insert(user);
 
         System.out.println(userDao.findById(1));
+        System.out.println(userDao.findAll());
     }
 }
