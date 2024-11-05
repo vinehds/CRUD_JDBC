@@ -13,18 +13,20 @@ public class UserDao {
 
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-
     public List<User> findAll(){
         Connection conn = null;
         Statement st = null;
-        conn = DB.getConnection();
+        ResultSet rs = null;
 
         List<User> usersFound = new ArrayList<>();
         String sql = "SELECT * FROM user";
 
         try {
+            conn = DB.getConnection();
+
             st = conn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+
+            rs = st.executeQuery(sql);
 
             while(rs.next()){
                 String name = rs.getString("name");
@@ -38,6 +40,7 @@ public class UserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
+            DB.closeResultSet(rs);
             DB.closeStatement(st);
             DB.closeConnection(conn);
         }
@@ -46,12 +49,14 @@ public class UserDao {
     }
 
     public User findById(int id) {
+        Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         String sql = "SELECT * FROM user WHERE id = ?";
 
         try {
-            ps = DB.getConnection().prepareStatement(sql);
+            conn = DB.getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
 
@@ -70,8 +75,9 @@ public class UserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
+            DB.closeResultSet(rs);
             DB.closePreparedStatement(ps);
-            DB.closePreparedStatement(rs);
+            DB.closeConnection(conn);
         }
     }
 
@@ -81,8 +87,7 @@ public class UserDao {
         String sql = "INSERT INTO user (name, cpf, email, password, dateOfBirth) VALUES (?, ?, ?, ?, ?)";
 
         try {
-            conn = DB.getConnection();
-            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps = DB.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, user.getName());
             ps.setString(2, user.getCpf());
@@ -114,13 +119,8 @@ public class UserDao {
         PreparedStatement ps = null;
 
         conn = DB.getConnection();
-        String sql = "UPDATE user "
-                + "SET name = ? "
-                + "SET cpf = ? "
-                + "SET email = ? "
-                + "SET password = ? "
-                + "SET dateOfBirth = ? "
-                + "WHERE id = ?";
+        String sql = "UPDATE user SET name = ?, cpf = ?, email = ?, password = ?, dateOfBirth = ? WHERE id = ?";
+
         try {
             ps = conn.prepareStatement(sql);
 
@@ -128,7 +128,7 @@ public class UserDao {
             ps.setString(2, updatedUser.getCpf());
             ps.setString(3, updatedUser.getEmail());
             ps.setString(4, updatedUser.getPassword());
-            ps.setDate(5, updatedUser.getDateOfBirth());
+            ps.setDate(5, new java.sql.Date(updatedUser.getDateOfBirth().getTime()));
 
             ps.setInt(6, userId);
 
@@ -152,8 +152,8 @@ public class UserDao {
             ps = conn.prepareStatement(sql);
 
             ps.setInt(1, userId);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected;
+
+            return ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {

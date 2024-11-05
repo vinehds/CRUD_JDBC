@@ -2,17 +2,28 @@ package application;
 
 import model.entities.User;
 import model.entities.dao.UserDao;
-
 import java.util.Date;
+import java.util.List;
 
 public class Program {
     public static void main(String[] args) {
-        User user = new User("vini", "123", "v@gmail.com", "5555", new Date());
-
         UserDao userDao = new UserDao();
-        int ra = userDao.insert(user);
 
-        System.out.println(userDao.findById(1));
-        System.out.println(userDao.findAll());
+        userDao.insert(new User("joana","joana", "joana", "joana", new Date()));
+
+
+        User user1 = userDao.findById(1);
+        System.out.println(user1);
+
+
+        List<User> users = userDao.findAll();
+        System.out.println(users);
+
+        userDao.delete(18);
+
+        userDao.update(new User("ana","ana", "ana", "ana", new Date()), 1);
+
+
+
     }
 }

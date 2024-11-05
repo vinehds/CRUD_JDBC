@@ -10,12 +10,16 @@ public class DB {
     private static Connection conn = null;
 
     public static Connection getConnection() {
-        if (conn == null) {
-            try {
-                conn = DriverManager.getConnection(url, user, password);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        try {
+            if (conn == null || conn.isClosed()) {
+                try {
+                    conn = DriverManager.getConnection(url, user, password);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return conn;
     }
@@ -30,10 +34,10 @@ public class DB {
         }
     }
 
-    public static void closePreparedStatement(PreparedStatement pstmt) {
-        if (pstmt != null) {
+    public static void closePreparedStatement(PreparedStatement ps) {
+        if (ps != null) {
             try {
-                pstmt.close();
+                ps.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -50,7 +54,7 @@ public class DB {
         }
     }
 
-    public static void closePreparedStatement(ResultSet rs) {
+    public static void closeResultSet(ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();
