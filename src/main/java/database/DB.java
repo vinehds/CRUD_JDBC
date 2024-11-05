@@ -1,5 +1,10 @@
 package database;
 
+import database.exception.CloseConnectionException;
+import database.exception.CloseResultSetException;
+import database.exception.CloseStatementException;
+import database.exception.ConnectionErrorException;
+
 import java.sql.*;
 
 public class DB {
@@ -12,14 +17,10 @@ public class DB {
     public static Connection getConnection() {
         try {
             if (conn == null || conn.isClosed()) {
-                try {
-                    conn = DriverManager.getConnection(url, user, password);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                conn = DriverManager.getConnection(url, user, password);
             }
         }catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new ConnectionErrorException(e.getMessage());
         }
         return conn;
     }
@@ -29,7 +30,7 @@ public class DB {
             try {
                 conn.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new CloseConnectionException(e.getMessage());
             }
         }
     }
@@ -39,7 +40,7 @@ public class DB {
             try {
                 ps.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new CloseStatementException(e.getMessage());
             }
         }
     }
@@ -49,7 +50,7 @@ public class DB {
             try {
                 stmt.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new CloseStatementException(e.getMessage());
             }
         }
     }
@@ -59,7 +60,7 @@ public class DB {
             try {
                 rs.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new CloseResultSetException(e.getMessage());
             }
         }
     }

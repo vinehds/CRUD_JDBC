@@ -1,17 +1,15 @@
 package model.entities.dao;
 
 import database.DB;
+import database.exception.DatabaseOperationException;
 import model.entities.User;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class UserDao {
-
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public List<User> findAll(){
         Connection conn = null;
@@ -38,13 +36,12 @@ public class UserDao {
                 usersFound.add(new User(name,cpf,email,password,dateOfBirth));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException(e.getMessage());
         } finally {
             DB.closeResultSet(rs);
             DB.closeStatement(st);
             DB.closeConnection(conn);
         }
-
         return usersFound;
     }
 
@@ -69,11 +66,11 @@ public class UserDao {
 
                 return new User(name, cpf, email, password, dateOfBirth);
             } else {
-                return null;
+                throw new DatabaseOperationException("User not found");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException(e.getMessage());
         } finally {
             DB.closeResultSet(rs);
             DB.closePreparedStatement(ps);
@@ -87,7 +84,8 @@ public class UserDao {
         String sql = "INSERT INTO user (name, cpf, email, password, dateOfBirth) VALUES (?, ?, ?, ?, ?)";
 
         try {
-            ps = DB.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            conn = DB.getConnection();
+            ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, user.getName());
             ps.setString(2, user.getCpf());
@@ -107,7 +105,7 @@ public class UserDao {
             }
             return id;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException(e.getMessage());
         } finally {
             DB.closePreparedStatement(ps);
             DB.closeConnection(conn);
@@ -116,12 +114,15 @@ public class UserDao {
 
     public int update(User updatedUser, int userId){
         Connection conn = null;
+
         PreparedStatement ps = null;
 
-        conn = DB.getConnection();
         String sql = "UPDATE user SET name = ?, cpf = ?, email = ?, password = ?, dateOfBirth = ? WHERE id = ?";
 
         try {
+            conn = DB.getConnection();
+            conn.setAutoCommit(false);
+
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, updatedUser.getName());
@@ -132,9 +133,19 @@ public class UserDao {
 
             ps.setInt(6, userId);
 
-            return ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+
+            conn.commit();
+
+            return rowsAffected;
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            try{
+                conn.rollback();
+                throw new DatabaseOperationException("Transaction rolled back! Caused by: " + e.getMessage());
+            } catch (SQLException ex) {
+               throw new DatabaseOperationException("Error trying to rollback! Caused by: " + ex.getMessage());
+            }
         } finally {
             DB.closePreparedStatement(ps);
             DB.closeConnection(conn);
@@ -155,7 +166,7 @@ public class UserDao {
 
             return ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException(e.getMessage());
         } finally {
             DB.closePreparedStatement(ps);
             DB.closeConnection(conn);
