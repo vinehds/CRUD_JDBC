@@ -5,13 +5,14 @@ import database.exception.DatabaseOperationException;
 import model.entities.User;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class UserDao {
+public class  UserDao {
 
-    public List<User> findAll(){
+    public static List<User> findAll(){
         Connection conn = null;
         Statement st = null;
         ResultSet rs = null;
@@ -26,15 +27,21 @@ public class UserDao {
 
             rs = st.executeQuery(sql);
 
+
             while(rs.next()){
+                Integer id = rs.getInt("id");
                 String name = rs.getString("name");
                 String cpf = rs.getString("cpf");
                 String email = rs.getString("email");
                 String password = rs.getString("password");
-                Date dateOfBirth = rs.getDate("dateOfBirth");
+                LocalDate dateOfBirth = rs.getDate("dateOfBirth").toLocalDate();
 
-                usersFound.add(new User(name,cpf,email,password,dateOfBirth));
+                User newUser = new User(name,cpf,email,password,dateOfBirth);
+                newUser.setId(id);
+
+                usersFound.add(newUser);
             }
+
         } catch (SQLException e) {
             throw new DatabaseOperationException(e.getMessage());
         } finally {
@@ -45,7 +52,7 @@ public class UserDao {
         return usersFound;
     }
 
-    public User findById(int id) {
+    public static User findById(int id) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -62,9 +69,11 @@ public class UserDao {
                 String cpf = rs.getString("cpf");
                 String email = rs.getString("email");
                 String password = rs.getString("password");
-                Date dateOfBirth = rs.getDate("dateOfBirth");
+                LocalDate dateOfBirth = rs.getDate("dateOfBirth").toLocalDate();
 
-                return new User(name, cpf, email, password, dateOfBirth);
+                User userUpdate = new User(name,cpf,email,password,dateOfBirth);
+                userUpdate.setId(id);
+                return userUpdate;
             } else {
                 throw new DatabaseOperationException("User not found");
             }
@@ -78,7 +87,7 @@ public class UserDao {
         }
     }
 
-    public int insert(User user) {
+    public static int insert(User user) {
         Connection conn = null;
         PreparedStatement ps = null;
         String sql = "INSERT INTO user (name, cpf, email, password, dateOfBirth) VALUES (?, ?, ?, ?, ?)";
@@ -87,11 +96,13 @@ public class UserDao {
             conn = DB.getConnection();
             ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
+
+
             ps.setString(1, user.getName());
             ps.setString(2, user.getCpf());
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getPassword());
-            ps.setDate(5, new java.sql.Date(user.getDateOfBirth().getTime()));
+            ps.setDate(5, java.sql.Date.valueOf(user.getDateOfBirth()));
 
             int id = 0;
             int rowsAffected = ps.executeUpdate();
@@ -112,7 +123,7 @@ public class UserDao {
         }
     }
 
-    public int update(User updatedUser, int userId){
+    public static int update(User updatedUser, int userId){
         Connection conn = null;
 
         PreparedStatement ps = null;
@@ -129,7 +140,7 @@ public class UserDao {
             ps.setString(2, updatedUser.getCpf());
             ps.setString(3, updatedUser.getEmail());
             ps.setString(4, updatedUser.getPassword());
-            ps.setDate(5, new java.sql.Date(updatedUser.getDateOfBirth().getTime()));
+            ps.setDate(5, java.sql.Date.valueOf(updatedUser.getDateOfBirth()));
 
             ps.setInt(6, userId);
 
@@ -152,7 +163,7 @@ public class UserDao {
         }
     }
 
-    public int delete(int userId){
+    public static int  delete(int userId){
         Connection conn = null;
         PreparedStatement ps = null;
 

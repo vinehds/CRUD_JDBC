@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha Página</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+  <a href="" class="navbar-brand">
+    <button class="btn btn-outline-primary">Voltar ao Menu</button>
+  </a>
+  <span class="navbar-text">
+        Menu
+    </span>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-4">CRUD - SUPPORT</h1>
+  <h3 class="text-center mb-4">Listar todos os usuários →</h3>
+
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <!-- Formulário para listar todos os usuários -->
+      <form action="controller" method="GET" class="mb-3">
+        <input type="hidden" name="action" value="ListUsers">
+        <button type="submit" class="btn btn-primary btn-block">Listar todos os usuários do banco (findAll + delete + update)</button>
+      </form>
+
+      <!-- Formulário para buscar usuário por ID -->
+      <form action="controller" method="GET" class="mb-3">
+        <div class="form-group">
+          <label for="userId">Digite o ID do usuário:</label>
+          <input type="hidden" name="action" value="FindUserById">
+          <input type="text" id="userId" name="id" placeholder="Digite o ID" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-info btn-block">Filtrar usuário por id (findById)</button>
+      </form>
+
+      <!-- Formulário para adicionar um novo usuário -->
+      <form action="add-user.jsp" method="GET">
+        <input type="hidden" name="action" value="InsertUser">
+        <button type="submit" class="btn btn-success btn-block">Adicionar um novo usuário (Insert)</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

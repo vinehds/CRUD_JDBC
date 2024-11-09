@@ -1,6 +1,7 @@
 package model.entities;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -12,12 +13,12 @@ public class User implements Serializable {
     private String cpf;
     private String email;
     private String password;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     public User() {
     }
 
-    public User(String name, String cpf, String email, String password, Date dateOfBirth) {
+    public User(String name, String cpf, String email, String password, LocalDate dateOfBirth) {
         this.name = name;
         this.cpf = cpf;
         this.email = email;
@@ -65,11 +66,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
